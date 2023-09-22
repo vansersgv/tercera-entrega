@@ -45,29 +45,14 @@ function auth(req, res, next) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.SIGNED_COOKIE)); // firmo la cookie para que si se modifica la cookie no la acepte / lea
-app.use(
-	session({
-		// configuración de la sesión de mi aplicación
-		store: MongoStore.create({
-			mongoUrl: process.env.MONGO_URL,
-			mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
-			ttl: 90, // Time to live - Cuanto va a durar la sesión - Segundos, no milisengundos
-		}),
-		secret: process.env.SESSION_SECRET,
-		resave: true,
-		saveUninitialized: true,
-	})
-);
+
 app.engine('handlebars', engine()); //defino que mi motor de plantillas va a ser handlebars
 app.set('view engine', 'handlebars');
 app.set('views', path.resolve(__dirname, './views'));
 
 // conexión con base de datos
-
-/* no va a ser necesario porque ya se conecta antes cuando se crea la sesión*/
-
-mongoose
-	.connect(process.env.MONGO_URL)
+	
+	mongoose.connect('mongodb+srv://vansersgv:Azulado2023@cluster0.z2wu4ij.mongodb.net/?retryWrites=true&w=majority')
 	.then(() => console.log('DB conectada'))
 	.catch(error => console.log(`Error en conexión a MongoDB Atlas:  ${error}`));
 
