@@ -16,10 +16,9 @@ form.addEventListener('submit', event => {
     socket.emit('newProduct', product);
 });
 
-socket.on('products', products => {
-    productsContainer.innerHTML = '';
-    products.forEach(prod => {
-        productsContainer.innerHTML += `
+productsContainer.innerHTML = '';
+	products.forEach(prod => {
+		productsContainer.innerHTML += `
     <div class="product-container">
     <p>Title: ${prod.title}</p>
     <p>Description: ${prod.description}</p>
@@ -33,4 +32,3 @@ socket.on('products', products => {
 
     `;
     });
-});
