@@ -5,7 +5,6 @@ const pageNumber = document.querySelector('#page-number');
 const previousButton = document.querySelector('#prev-page-button');
 const nextButton = document.querySelector('#next-page-button');
 const mensaje = document.querySelector('#bienvenida');
-const logoutButton = document.querySelector('#logout-button');
 
 let page;
 let cartId;
@@ -65,16 +64,4 @@ socket.on('success', cid => {
 	Swal.fire({
 		title: 'Producto agregado',
 	});
-});
-
-logoutButton.addEventListener('click', async () => {
-	const res = await fetch('http://localhost:8080/api/sessions/logout');
-	const data = await res.json();
-	if (data.resultado === 'logout exitoso') {
-		Swal.fire({
-			title: 'Ha cerrado sesión',
-		}).then(() => {
-			window.location.href = '/static/home';
-		});
-	}
 });

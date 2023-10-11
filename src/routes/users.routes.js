@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import userModel from '../models/users.models.js';
+import { createHash } from '../utils/bcrypt.js';
 import passport from 'passport';
 
 const routerUser = Router();
@@ -26,3 +27,20 @@ routerUser.get('/', async (req, res) => {
 });
 
 export default routerUser;
+
+/* 
+const { first_name, last_name, email, age, password } = req.body;
+	try {
+		const hashPassword = createHash(password);
+		const response = await userModel.create({
+			first_name: first_name,
+			last_name: last_name,
+			email: email,
+			age: age,
+			password: hashPassword,
+		});
+		res.status(200).send({ respuesta: 'Usuario creado', message: response });
+	} catch (error) {
+		res.status(400).send({ error: `Error al crear usuario: ${error}` });
+	}
+*/

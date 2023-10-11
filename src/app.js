@@ -9,19 +9,12 @@ import path from 'path';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
-import passport from 'passport';
 import initializePassport from './config/passport.js';
+import router from './routes/index.routes.js';
 
 import messageModel from './models/message.models.js';
-
-import routerProd from './routes/products.routes.js';
-import routerCart from './routes/carts.routes.js';
-import routerMessage from './routes/messages.routes.js';
-import routerUser from './routes/users.routes.js';
-import routerSession from './routes/sessions.routes.js';
 import productModel from './models/products.models.js';
-import userModel from './models/users.models.js';
-import routerHandlebars from './routes/handlebars.routes.js';
+import passport from 'passport';
 
 const app = express();
 
@@ -36,13 +29,6 @@ const server = app.listen(PORT, () => {
 const io = new Server(server);
 
 //Middlewares
-function auth(req, res, next) {
-	if (req.session.emial === 'admin@admin.com') {
-		return next();
-	} else {
-		res.send('No tenés acceso a este contenido');
-	}
-}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -143,36 +129,23 @@ io.on('connection', socket => {
 		socket.emit('mensajes', messages);
 	});
 
-	socket.on('submit register', async user => {
-		const { email } = user;
-		const userExists = await userModel.findOne({ email: email });
+	socket.on('submit login', async data => {
+		const { email, password } = data;
 
-		if (!userExists) {
-			await userModel.create(user);
-			socket.emit('register response', true);
+		const user = await userModel.findOne({ email: email });
+		if (user) {
+			if (user.password === password) {
+				session.login = true;
+				socket.emit('login response', user);
+			} else {
+				socket.emit('login response', false);
+			}
 		} else {
-			socket.emit('register response', false);
-		}
-	});
-
-	socket.on('logout', () => {
-		console.log(session.login);
-		if (session.login) {
-			console.log(session);
-			session.destroy();
-			socket.emit('logoutOk');
+			socket.emit('login response', false);
 		}
 	});
 });
 
 // Routes
 app.use('/static', express.static(path.join(__dirname, 'public')));
-app.use('/static', routerHandlebars);
-
-// Cookies
-
-app.use('/api/products', routerProd); // defino que mi app va a usar lo que venga en routerProd para la ruta que defina
-app.use('/api/carts', routerCart);
-app.use('/api/messages', routerMessage);
-app.use('/api/users', routerUser);
-app.use('/api/sessions', routerSession);
+app.use('/', router);
