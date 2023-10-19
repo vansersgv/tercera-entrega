@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import cartModel from './carts.models';
+import cartModel from './carts.models.js';
 
 const userSchemna = new Schema({
 	first_name: {
@@ -32,10 +32,6 @@ const userSchemna = new Schema({
 		required: true,
 	},
 });
-
-// cartSchema.pre('find', function () {
-// 	this.populate('cart');
-// });
 
 userSchemna.pre('save', async function (next) {
 	// preconfiguración para generar un nuevo carrito al crear el usuario

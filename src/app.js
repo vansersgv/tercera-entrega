@@ -9,12 +9,13 @@ import path from 'path';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
+import passport from 'passport';
 import initializePassport from './config/passport.js';
 import router from './routes/index.routes.js';
 
 import messageModel from './models/message.models.js';
 import productModel from './models/products.models.js';
-import passport from 'passport';
+import routerHandlebars from './routes/handlebars.routes.js';
 
 const app = express();
 
@@ -29,6 +30,13 @@ const server = app.listen(PORT, () => {
 const io = new Server(server);
 
 //Middlewares
+function auth(req, res, next) {
+	if (req.session.emial === 'admin@admin.com') {
+		return next();
+	} else {
+		res.send('No tenés acceso a este contenido');
+	}
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -74,34 +82,6 @@ io.on('connection', socket => {
 		socket.emit('products', data);
 	});
 
-	socket.on('previousPage', async page => {
-		const data = await productModel.paginate({}, { limit: 5, page: page });
-		socket.emit('products', data);
-	});
-
-	socket.on('nextPage', async page => {
-		const data = await productModel.paginate({}, { limit: 5, page: page });
-		socket.emit('products', data);
-	});
-
-	socket.on('addProduct', async data => {
-		const { pid, cartId } = data;
-		if (cartId) {
-			const cart = await cartModel.findById(cartId);
-			const productExists = cart.products.find(prod => prod.id_prod == pid);
-			productExists
-				? productExists.quantity++
-				: cart.products.push({ id_prod: pid, quantity: 1 });
-			await cart.save();
-			socket.emit('success', cartId);
-		} else {
-			const cart = await cartModel.create({});
-			cart.products.push({ id_prod: pid, quantity: 1 });
-			await cart.save();
-			socket.emit('success', cart._id.toString());
-		}
-	});
-
 	socket.on('loadCart', async () => {
 		const cart = await cartModel.findById(cartId).populate('products.id_prod');
 		if (cart) {
@@ -128,24 +108,10 @@ io.on('connection', socket => {
 
 		socket.emit('mensajes', messages);
 	});
-
-	socket.on('submit login', async data => {
-		const { email, password } = data;
-
-		const user = await userModel.findOne({ email: email });
-		if (user) {
-			if (user.password === password) {
-				session.login = true;
-				socket.emit('login response', user);
-			} else {
-				socket.emit('login response', false);
-			}
-		} else {
-			socket.emit('login response', false);
-		}
-	});
 });
 
 // Routes
 app.use('/static', express.static(path.join(__dirname, 'public')));
+app.use('/static', routerHandlebars);
+
 app.use('/', router);

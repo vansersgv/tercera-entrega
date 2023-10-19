@@ -8,9 +8,9 @@ import routerHandlebars from './handlebars.routes.js';
 
 const router = Router();
 
-router.use('/api/product', routerProd);
-router.use('/api/message', routerMessage);
-router.use('/api/cart', routerCart);
+router.use('/api/products', routerProd);
+router.use('/api/messages', routerMessage);
+router.use('/api/carts', routerCart);
 router.use('/api/users', routerUser);
 router.use('/api/sessions', routerSession);
 router.use('/static', routerHandlebars);
