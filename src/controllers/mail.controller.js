@@ -21,9 +21,9 @@ const sendEmail = async (req, res) => {
 		to: 'vansersgv@gmail.com',
 		subject: 'Buenas tardes',
 		html: `
-      <div>
+    <div>
         <h1>Hola Buenas Tardes</h1>
-      </div>
+    </div>
     `,
 		attachments: [
 			{
@@ -32,8 +32,7 @@ const sendEmail = async (req, res) => {
 				cid: 'prog.png',
 			},
 		],
-	});
-	
+	});	
 	res.send({ message: `Mail enviado`, response: resultado });
 };
 
